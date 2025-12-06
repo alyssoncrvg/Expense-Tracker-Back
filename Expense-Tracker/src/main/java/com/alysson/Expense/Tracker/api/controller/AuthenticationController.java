@@ -8,6 +8,7 @@ import com.alysson.Expense.Tracker.domain.model.User;
 import com.alysson.Expense.Tracker.domain.service.AuthorizationService;
 import com.alysson.Expense.Tracker.domain.repository.UserRepository;
 import com.alysson.Expense.Tracker.infra.security.TokenService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "Autenticacao", description = "Gerenciamento de logine cadastro de usuarios")
 public class AuthenticationController {
 
     @Autowired
