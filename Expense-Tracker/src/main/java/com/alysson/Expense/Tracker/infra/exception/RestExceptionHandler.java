@@ -1,4 +1,5 @@
 package com.alysson.Expense.Tracker.infra.exception;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -49,5 +50,14 @@ public class RestExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(threatResponse);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<RestErrorMessage> handleEntityNotFound(EntityNotFoundException exception) {
+        RestErrorMessage threatResponse = new RestErrorMessage(
+                HttpStatus.NOT_FOUND.value(),
+                exception.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(threatResponse);
     }
 }
