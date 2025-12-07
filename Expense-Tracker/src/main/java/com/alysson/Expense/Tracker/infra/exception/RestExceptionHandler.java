@@ -1,4 +1,6 @@
 package com.alysson.Expense.Tracker.infra.exception;
+
+import com.alysson.Expense.Tracker.api.dto.common.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,56 +10,45 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class RestExceptionHandler {
 
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<RestErrorMessage> handleUserAlreadyExists(UserAlreadyExistsException exception) {
-        RestErrorMessage threatResponse = new RestErrorMessage(
-                HttpStatus.CONFLICT.value(),
-                exception.getMessage()
-        );
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(threatResponse);
+    public ResponseEntity<ApiResponse<Void>> handleUserAlreadyExists(UserAlreadyExistsException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(HttpStatus.CONFLICT.value(), exception.getMessage(), null));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationErrors(MethodArgumentNotValidException exception) {
-
+    public ResponseEntity<ApiResponse<List<String>>> handleValidationErrors(MethodArgumentNotValidException exception) {
         List<String> errors = exception.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.toList());
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("message", "Erro na validação dos campos");
-        response.put("errors", errors); // Lista qual campo está errado
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "Erro na validação dos campos", errors));
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<RestErrorMessage> handleBadCredentials(BadCredentialsException exception) {
-        RestErrorMessage threatResponse = new RestErrorMessage(
-                HttpStatus.UNAUTHORIZED.value(),
-                "Credenciais inválidas (usuário ou senha incorretos)"
-        );
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(threatResponse);
+    public ResponseEntity<ApiResponse<Void>> handleBadCredentials(BadCredentialsException exception) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.error(HttpStatus.UNAUTHORIZED.value(), "Credenciais inválidas", null));
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<RestErrorMessage> handleEntityNotFound(EntityNotFoundException exception) {
-        RestErrorMessage threatResponse = new RestErrorMessage(
-                HttpStatus.NOT_FOUND.value(),
-                exception.getMessage()
-        );
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(threatResponse);
+    public ResponseEntity<ApiResponse<Void>> handleEntityNotFound(EntityNotFoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), exception.getMessage(), null));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<Void>> handleGeneralException(Exception exception) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Erro interno no servidor", null));
     }
 }

@@ -4,6 +4,7 @@ import com.alysson.Expense.Tracker.api.dto.auth.AuthenticationDTO;
 import com.alysson.Expense.Tracker.api.dto.auth.LoginResponseDTO;
 import com.alysson.Expense.Tracker.api.dto.auth.RefreshTokenDTO;
 import com.alysson.Expense.Tracker.api.dto.auth.RegisterDTO;
+import com.alysson.Expense.Tracker.api.dto.common.ApiResponse;
 import com.alysson.Expense.Tracker.domain.model.User;
 import com.alysson.Expense.Tracker.domain.service.AuthorizationService;
 import com.alysson.Expense.Tracker.domain.repository.UserRepository;
@@ -37,7 +38,7 @@ public class AuthenticationController {
     private UserRepository userRepository;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid AuthenticationDTO data) {
+    public ResponseEntity<ApiResponse<LoginResponseDTO>>login(@RequestBody @Valid AuthenticationDTO data) {
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.password());
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
@@ -45,17 +46,17 @@ public class AuthenticationController {
         var accessToken = tokenService.generateAccessToken(user);
         var refreshToken = tokenService.generateRefreshToken(user);
 
-        return ResponseEntity.ok(new LoginResponseDTO(accessToken, refreshToken));
+        return ResponseEntity.ok(ApiResponse.success(200, "Login realizado com sucesso", new LoginResponseDTO(accessToken, refreshToken)));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@RequestBody @Valid RegisterDTO data) {
+    public ResponseEntity<ApiResponse<Void>> register(@RequestBody @Valid RegisterDTO data) {
         authorizationService.register(data);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(201).body(ApiResponse.success(201, "Usuário registrado com sucesso"));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<LoginResponseDTO> refreshToken(@RequestBody @Valid RefreshTokenDTO data) {
+    public ResponseEntity<ApiResponse<Void>> refreshToken(@RequestBody @Valid RefreshTokenDTO data) {
         String login = tokenService.validateToken(data.refreshToken());
 
         if (login.isEmpty()) {
@@ -71,6 +72,6 @@ public class AuthenticationController {
         var newAccessToken = tokenService.generateAccessToken(user);
         var newRefreshToken = tokenService.generateRefreshToken(user);
 
-        return ResponseEntity.ok(new LoginResponseDTO(newAccessToken, newRefreshToken));
+        return ResponseEntity.status(201).body(ApiResponse.success(201, "Usuário registrado com sucesso"));
     }
 }
