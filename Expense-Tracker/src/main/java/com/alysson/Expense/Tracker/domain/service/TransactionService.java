@@ -105,22 +105,12 @@ public class TransactionService {
     }
 
     private Transaction getTransactionValidated(UUID id, User user) {
-        Transaction transaction = repository.findById(id)
+        return repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Transação não encontrada"));
-
-        if (!transaction.getUser().getId().equals(user.getId())) {
-            throw new EntityNotFoundException("Transação não encontrada ou acesso negado");
-        }
-        return transaction;
     }
 
     private Category validateCategory(UUID categoryId, User user) {
-        Category category = categoryRepository.findById(categoryId)
+        return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada com o UUID " + categoryId +  " informado"));
-
-        if (!category.getUser().getId().equals(user.getId())) {
-            throw new EntityNotFoundException("A categoria " + categoryId +  " informada não pertence a este usuário");
-        }
-        return category;
     }
 }
