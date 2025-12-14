@@ -56,7 +56,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<ApiResponse<Void>> refreshToken(@RequestBody @Valid RefreshTokenDTO data) {
+    public ResponseEntity<ApiResponse<LoginResponseDTO>> refreshToken(@RequestBody @Valid RefreshTokenDTO data) {
         String login = tokenService.validateToken(data.refreshToken());
 
         if (login.isEmpty()) {
@@ -72,6 +72,6 @@ public class AuthenticationController {
         var newAccessToken = tokenService.generateAccessToken(user);
         var newRefreshToken = tokenService.generateRefreshToken(user);
 
-        return ResponseEntity.status(201).body(ApiResponse.success(201, "Usuário registrado com sucesso"));
+        return ResponseEntity.ok(ApiResponse.success(200, "Login realizado com sucesso", new LoginResponseDTO(newAccessToken, newRefreshToken)));
     }
 }
