@@ -5,6 +5,7 @@ import com.alysson.Expense.Tracker.api.dto.category.CategoryResponseDTO;
 import com.alysson.Expense.Tracker.domain.model.Category;
 import com.alysson.Expense.Tracker.domain.model.User;
 import com.alysson.Expense.Tracker.domain.repository.CategoryRepository;
+import com.alysson.Expense.Tracker.infra.exception.CategoryAlreadyExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,9 @@ public class CategoryService {
     }
 
     public CategoryResponseDTO create(CategoryRequestDTO data, User user) {
+        if (repository.existsByNameAndUser(data.name(), user)) {
+            throw new CategoryAlreadyExistsException("Você já possui uma categoria com este nome.");
+        }
         Category category = new Category();
         category.setName(data.name());
         category.setUser(user);
@@ -37,6 +41,10 @@ public class CategoryService {
 
     public CategoryResponseDTO update(UUID id, CategoryRequestDTO data, User user) {
         Category category = getCategoryValidated(id, user);
+        if (!category.getName().equals(data.name()) && repository.existsByNameAndUser(data.name(), user)) {
+            throw new CategoryAlreadyExistsException("Você já possui uma categoria com este nome.");
+        }
+
         category.setName(data.name());
 
         repository.save(category);

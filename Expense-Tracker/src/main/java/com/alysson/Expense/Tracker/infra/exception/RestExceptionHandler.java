@@ -92,4 +92,10 @@ public class RestExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(HttpStatus.BAD_REQUEST.value(), exception.getMessage(), null));
     }
+
+    @ExceptionHandler(CategoryAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse<Void>> handleCategoryAlreadyExists(CategoryAlreadyExistsException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(HttpStatus.CONFLICT.value(), exception.getMessage(), null));
+    }
 }
